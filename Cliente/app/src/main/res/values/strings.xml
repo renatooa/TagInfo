@@ -10,5 +10,6 @@
 
     <string name="nfc_disabilitado">NFC desabilitado. Clique em OK para habilitar</string>
     <string name="nfc_nao_suportado">Seu dispositivo não suporta a tecnologia NFC</string>
+    <string name="title_activity_info_produto">InfoProdutoActivity</string>
 
 </resources>

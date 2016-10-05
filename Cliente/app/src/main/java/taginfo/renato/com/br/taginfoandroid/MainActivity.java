@@ -86,18 +86,18 @@ public class MainActivity extends AppCompatActivity
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
+
                 if (status != TextToSpeech.ERROR) {
-                    tts.setLanguage(Locale.UK);
+                    tts.setLanguage(Locale.getDefault());
+                    tts.speak("Valor do Produto 15.99", TextToSpeech.QUEUE_ADD, null);
                 }
             }
         });
 
-        tts.speak("Teste", TextToSpeech.QUEUE_FLUSH, null);
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
-        if (nfcAdapter == null) ;
-        {
+        if (nfcAdapter == null) {
             showMessage(R.string.nfc_nao_suportado, new DialogInterface.OnClickListener() {
 
                 @Override
@@ -111,9 +111,7 @@ public class MainActivity extends AppCompatActivity
         intentFilterNfc.addAction(NfcAdapter.ACTION_TECH_DISCOVERED);
         intentFilterNfc.addAction(NfcAdapter.ACTION_NDEF_DISCOVERED);
 
-
-
-
+        startActivity(new Intent(this, InfoProdutoActivity.class));
     }
 
     @Override

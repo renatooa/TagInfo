@@ -39,7 +39,10 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity android:name=".InfoProdutoActivity"></activity>
+        <activity
+            android:name=".InfoProdutoActivity"
+            android:label="@string/title_activity_info_produto"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
