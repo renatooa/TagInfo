@@ -52,15 +52,17 @@ public class InfoProdutoActivity extends AppCompatActivity {
 
         List<BarEntry> entries = new ArrayList<BarEntry>();
 
-        entries.add(new BarEntry(1f, 10f));
+        entries.add(new BarEntry(1f, 10f ,"Letras 1"));
 
         List<BarEntry> entries1 = new ArrayList<BarEntry>();
 
-        entries1.add(new BarEntry(2f, 20f));
+        BarEntry a = new BarEntry(2f, 20f,"Letras 2");
+
+        entries1.add(new BarEntry(2f, 20f,"Letras 2"));
 
         List<BarEntry> entries2 = new ArrayList<BarEntry>();
 
-        entries2.add(new BarEntry(3f, 30f));
+        entries2.add(new BarEntry(3f, 30f,"Letras 3"));
 
 
         BarDataSet set1, set2, set3;
@@ -68,7 +70,7 @@ public class InfoProdutoActivity extends AppCompatActivity {
         set1 = new BarDataSet(entries, "Company A");
         // set1.setColors(ColorTemplate.createColors(getApplicationContext(),
         // ColorTemplate.FRESH_COLORS));
-        set1.setColor(Color.rgb(104, 241, 175));
+        set1.setColor(Color.rgb(104, 241, 0));
         set2 = new BarDataSet(entries1, "Company B");
         set2.setColor(Color.rgb(164, 0, 251));
         set3 = new BarDataSet(entries2, "Company C");
@@ -86,6 +88,7 @@ public class InfoProdutoActivity extends AppCompatActivity {
 
         // dataSet.setColor(Color.BLUE);
         BarData barData = new BarData(dataSets);
+
         barData.setValueTextColor(Color.GREEN);
         barData.setDrawValues(true);
 
