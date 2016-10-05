@@ -29,8 +29,7 @@ public class TagInfo implements Serializable {
 	public InformacaoProduto info() {
 
 		InformacaoProduto info = new InformacaoProduto();
-		info.setNome("Batata");
-
+		
 		return info;
 	}
 }

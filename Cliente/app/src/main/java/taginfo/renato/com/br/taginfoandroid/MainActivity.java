@@ -1,6 +1,7 @@
 package taginfo.renato.com.br.taginfoandroid;
 
 import android.app.PendingIntent;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.nfc.NfcAdapter;
@@ -14,8 +15,11 @@ import android.nfc.tech.NfcB;
 import android.nfc.tech.NfcF;
 import android.nfc.tech.NfcV;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.speech.tts.TextToSpeech;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -28,8 +32,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import java.util.Locale;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+
+    NfcAdapter nfcAdapter;
+
+    TextToSpeech tts;
 
     private final String[][] techList = new String[][]{
             new String[]{
@@ -43,17 +54,14 @@ public class MainActivity extends AppCompatActivity
             }
     };
 
-    /*
-    *  IntentFilter ndefIntent = new IntentFilter();
+    IntentFilter intentFilterNfc = new IntentFilter();
 
-        ndefIntent.addAction(NfcAdapter.ACTION_TAG_DISCOVERED);
-        ndefIntent.addAction(NfcAdapter.ACTION_NDEF_DISCOVERED);
-        ndefIntent.addAction(NfcAdapter.ACTION_TECH_DISCOVERED);*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -75,6 +83,37 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status != TextToSpeech.ERROR) {
+                    tts.setLanguage(Locale.UK);
+                }
+            }
+        });
+
+        tts.speak("Teste", TextToSpeech.QUEUE_FLUSH, null);
+
+        nfcAdapter = NfcAdapter.getDefaultAdapter(this);
+
+        if (nfcAdapter == null) ;
+        {
+            showMessage(R.string.nfc_nao_suportado, new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    finish();
+                }
+            });
+        }
+
+        intentFilterNfc.addAction(NfcAdapter.ACTION_TAG_DISCOVERED);
+        intentFilterNfc.addAction(NfcAdapter.ACTION_TECH_DISCOVERED);
+        intentFilterNfc.addAction(NfcAdapter.ACTION_NDEF_DISCOVERED);
+
+
+
+
     }
 
     @Override
@@ -95,7 +134,7 @@ public class MainActivity extends AppCompatActivity
             StringBuffer bf = new StringBuffer();
 
             for (int i = 0; i < idTag.length; i++) {
-               bf.append(String.format("%02X:", idTag[i]));
+                bf.append(String.format("%02X:", idTag[i]));
             }
             Log.e("NFC Reader format", bf.toString());
 
@@ -162,21 +201,54 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        habilitarNfc();
+        if (nfcAdapter.isEnabled()) {
+            habilitarNfc();
+        } else {
+            showNFCSettingsDialog();
+        }
     }
 
-    //Habilitar NFC
     private void habilitarNfc() {
-        NfcAdapter adapter = NfcAdapter.getDefaultAdapter(this);
+        nfcAdapter.enableForegroundDispatch(this, getPendingIntent(), new IntentFilter[]{intentFilterNfc}, null);
+    }
 
-        IntentFilter tagDetected = new IntentFilter();
+    @Override
+    protected void onPause() {
+        super.onPause();
+        desabilitarNfc();
+    }
 
-        tagDetected.addAction(NfcAdapter.ACTION_TAG_DISCOVERED);
-        tagDetected.addAction(NfcAdapter.ACTION_TECH_DISCOVERED);
-        tagDetected.addAction(NfcAdapter.ACTION_NDEF_DISCOVERED);
-        IntentFilter[] writeTagFilters = new IntentFilter[]{tagDetected};
+    private void desabilitarNfc() {
+        if (nfcAdapter != null) {
+            nfcAdapter.disableForegroundDispatch(this);
+        }
+    }
 
-        adapter.enableForegroundDispatch(this, getPendingIntent(), writeTagFilters, null);
+    private void showNFCSettingsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.nfc_disabilitado);
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
+                startActivity(intent);
+            }
+        });
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialogInterface, int i) {
+                finish();
+            }
+        });
+        builder.create().show();
+        return;
+    }
+
+    private void showMessage(int idMenssage, DialogInterface.OnClickListener clickListener) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setMessage(idMenssage);
+        builder.setIcon(android.R.drawable.ic_dialog_alert);
+        builder.setPositiveButton(android.R.string.ok, clickListener);
+        builder.create().show();
     }
 
     @SuppressWarnings("StatementWithEmptyBody")

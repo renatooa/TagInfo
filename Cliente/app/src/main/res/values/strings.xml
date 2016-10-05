@@ -7,4 +7,8 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_nfc_reader">NfcReader</string>
     <string name="title_activity_tag_dispatch">TagDispatch</string>
+
+    <string name="nfc_disabilitado">NFC desabilitado. Clique em OK para habilitar</string>
+    <string name="nfc_nao_suportado">Seu dispositivo não suporta a tecnologia NFC</string>
+
 </resources>
