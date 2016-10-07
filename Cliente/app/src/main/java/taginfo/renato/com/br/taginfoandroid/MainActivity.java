@@ -1,6 +1,7 @@
 package taginfo.renato.com.br.taginfoandroid;
 
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -14,6 +15,7 @@ import android.nfc.tech.NfcA;
 import android.nfc.tech.NfcB;
 import android.nfc.tech.NfcF;
 import android.nfc.tech.NfcV;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.speech.tts.TextToSpeech;
@@ -34,13 +36,18 @@ import android.widget.Toast;
 
 import java.util.Locale;
 
+import taginfo.renato.com.br.taginfoandroid.http.cliente.HttpCliente;
+import taginfo.renato.com.br.taginfoandroid.http.cliente.HttpExcecao;
+import taginfo.renato.com.br.taginfoandroid.http.cliente.HttpJson;
+import taginfo.renato.com.br.taginfoservice.mensagem.MensagemInformacao;
+import taginfo.renato.com.br.taginfoservice.modelo.InformacaoProduto;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
 
-    NfcAdapter nfcAdapter;
-
-    TextToSpeech tts;
+    private NfcAdapter nfcAdapter;
+    private ProgressDialog progressDialog;
 
     private final String[][] techList = new String[][]{
             new String[]{
@@ -54,8 +61,7 @@ public class MainActivity extends AppCompatActivity
             }
     };
 
-    IntentFilter intentFilterNfc = new IntentFilter();
-
+    private IntentFilter intentFilterNfc = new IntentFilter();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,15 +70,6 @@ public class MainActivity extends AppCompatActivity
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -83,17 +80,8 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
-            @Override
-            public void onInit(int status) {
-
-                if (status != TextToSpeech.ERROR) {
-                    tts.setLanguage(Locale.getDefault());
-                    tts.speak("Valor do Produto 15.99", TextToSpeech.QUEUE_ADD, null);
-                }
-            }
-        });
-
+        progressDialog = new ProgressDialog(this, R.style.DialogTransparent);
+        progressDialog.setMessage(getString(R.string.mensagem_consultando_tag));
 
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
 
@@ -110,53 +98,33 @@ public class MainActivity extends AppCompatActivity
         intentFilterNfc.addAction(NfcAdapter.ACTION_TAG_DISCOVERED);
         intentFilterNfc.addAction(NfcAdapter.ACTION_TECH_DISCOVERED);
         intentFilterNfc.addAction(NfcAdapter.ACTION_NDEF_DISCOVERED);
-
-        startActivity(new Intent(this, InfoProdutoActivity.class));
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
-        Toast.makeText(this, "teste " + intent.getAction(), Toast.LENGTH_LONG).show();
+        if (intent != null && intent.getAction() != null && intent.getAction().contains("android.nfc.action")) {
 
-        if (intent != null && NfcAdapter.ACTION_TAG_DISCOVERED.equals(intent.getAction())) {
             Tag tag = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG);
-
-            //Log.i("NFC Reader NfcF", NfcF.get(tag).toString());
-            Log.e("NFC Reader HexString", bytesToHexString(tag.getId()));
-            Log.e("NFC Reader toString", tag.toString());
 
             byte[] idTag = tag.getId();
 
-            StringBuffer bf = new StringBuffer();
+            AsyncTaskInformacaoTag asyncTaskInformacaoTag = new AsyncTaskInformacaoTag();
 
-            for (int i = 0; i < idTag.length; i++) {
-                bf.append(String.format("%02X:", idTag[i]));
-            }
-            Log.e("NFC Reader format", bf.toString());
-
-
-            Toast.makeText(this, "Id Hexa " + bf.toString(), Toast.LENGTH_LONG).show();
+            asyncTaskInformacaoTag.execute(bytesToHexString(idTag));
         }
     }
 
-    private String bytesToHexString(byte[] src) {
-        StringBuilder stringBuilder = new StringBuilder("0x");
-        if (src == null || src.length <= 0) {
-            return null;
+    private String bytesToHexString(byte[] idTag) {
+
+        StringBuffer bf = new StringBuffer();
+
+        for (int i = 0; i < idTag.length; i++) {
+            bf.append(String.format("%02X:", idTag[i]));
         }
 
-        char[] buffer = new char[2];
-        for (int i = 0; i < src.length; i++) {
-
-            buffer[0] = Character.forDigit((src[i] >>> 4) & 0x0F, 16);
-            buffer[1] = Character.forDigit(src[i] & 0x0F, 16);
-            System.out.println(buffer);
-            stringBuilder.append(buffer);
-        }
-
-        return stringBuilder.toString();
+        return bf.toString();
     }
 
     @Override
@@ -171,19 +139,15 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
@@ -191,7 +155,6 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    //Evento para habilitar o manuseio de PendingIntent em runtime
     private PendingIntent getPendingIntent() {
         return PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
     }
@@ -240,12 +203,20 @@ public class MainActivity extends AppCompatActivity
         return;
     }
 
+    private void showMessage(int idMenssage) {
+
+        showMessage(idMenssage, null);
+    }
+
     private void showMessage(int idMenssage, DialogInterface.OnClickListener clickListener) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setMessage(idMenssage);
         builder.setIcon(android.R.drawable.ic_dialog_alert);
-        builder.setPositiveButton(android.R.string.ok, clickListener);
+
+        if (clickListener != null) {
+            builder.setPositiveButton(android.R.string.ok, clickListener);
+        }
         builder.create().show();
     }
 
@@ -272,5 +243,56 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private class AsyncTaskInformacaoTag extends AsyncTask<String, Void, MensagemInformacao> {
+
+        private Exception exception;
+
+        public AsyncTaskInformacaoTag() {
+
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog.show();
+        }
+
+        @Override
+        protected MensagemInformacao doInBackground(String... tagId) {
+
+            HttpJson httpJson = new HttpJson();
+
+            try {
+                return httpJson.enviarGet(MensagemInformacao.class, HttpCliente.getUrlInformacao(tagId[0]));
+            } catch (Exception e) {
+                Log.e(MainActivity.class.getSimpleName(), "AsyncTaskInformacaoTag.doInBackground", e);
+                this.exception = e;
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(MensagemInformacao mensagemInformacao) {
+            super.onPostExecute(mensagemInformacao);
+            try {
+                if (exception == null && mensagemInformacao != null && mensagemInformacao.getInformacaoProduto() != null) {
+
+                    Bundle bundle = new Bundle();
+
+                    bundle.putSerializable(InformacaoProduto.class.getName(), mensagemInformacao.getInformacaoProduto());
+
+                    Intent intent = new Intent(MainActivity.this, InfoProdutoActivity.class);
+                    intent.putExtras(bundle);
+
+                    startActivity(intent);
+                } else {
+                    showMessage(R.string.alerta_falha_obter_informacao);
+                }
+            } finally {
+                progressDialog.hide();
+            }
+        }
     }
 }

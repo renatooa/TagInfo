@@ -12,4 +12,17 @@
     <string name="nfc_nao_suportado">Seu dispositivo não suporta a tecnologia NFC</string>
     <string name="title_activity_info_produto">InfoProdutoActivity</string>
 
+    <string name="texto_aproxime.tag">Aproxime de uma Tag NFC</string>
+    <string name="texto_produto">Produto</string>
+    <string name="texto_valor">Valor</string>
+    <string name="texto_valor_produto">Valor do Produto %1$s é %2$s</string>
+    <string name="texto_quantidades">Quantidades</string>
+
+    <string name="texto_estoque">Estoque</string>
+    <string name="texto_venda">Venda</string>
+    <string name="texto_compra">Compra</string>
+
+    <string name="alerta_falha_obter_informacao">Houve uma falha na obtenção da Informação</string>
+    <string name="mensagem_consultando_tag">Consultando Tag</string>
+
 </resources>

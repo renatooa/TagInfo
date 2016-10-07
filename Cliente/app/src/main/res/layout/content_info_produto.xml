@@ -14,10 +14,59 @@
     tools:showIn="@layout/activity_info_produto">
 
     <TextView
-        android:id="@+id/texto"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Teste" />
+        android:text="@string/texto_produto"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/produtoNome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="@string/texto_produto"
+        android:paddingBottom="5dp" />
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/texto_valor"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/produtoValor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/texto_valor"
+                android:paddingBottom="5dp" />
+        </LinearLayout>
+
+        <ImageButton
+            android:onClick="narrarValorProduto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:src="@android:drawable/ic_lock_silent_mode_off" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="5dp"
+        android:text="@string/texto_quantidades"
+        android:textStyle="bold" />
+
 
     <com.github.mikephil.charting.charts.BarChart
         android:id="@+id/chartLine"
