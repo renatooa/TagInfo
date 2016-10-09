@@ -31,7 +31,12 @@ public class TagInfo implements Serializable {
 	public MensagemInformacao info(@PathVariable("tagId") String tagId) {
 		
 		System.out.println("Tag Id " + tagId);
+		
+		InformacaoProduto info = new InformacaoProduto();
+		info.setNome("Batata Inglesa");
+		info.setEstoque(500);
+		info.setQuantidadeAReceber(200);
 
-		return new MensagemInformacao(new InformacaoProduto());
+		return new MensagemInformacao(info);
 	}
 }

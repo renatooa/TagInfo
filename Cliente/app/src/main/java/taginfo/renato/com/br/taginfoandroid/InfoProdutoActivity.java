@@ -34,6 +34,7 @@ public class InfoProdutoActivity extends AppCompatActivity {
 
     private InformacaoProduto informacaoProduto;
     private TextToSpeech tts;
+    private boolean ttsIniciado = false;
     private BarChart chart;
     private TextView textNome;
     private TextView textValor;
@@ -49,6 +50,8 @@ public class InfoProdutoActivity extends AppCompatActivity {
 
                 if (status != TextToSpeech.ERROR) {
                     tts.setLanguage(Locale.getDefault());
+                    ttsIniciado = true;
+                    narrarValorProduto();
                 }
             }
         });
@@ -60,7 +63,7 @@ public class InfoProdutoActivity extends AppCompatActivity {
         popularViews();
     }
 
-    private void recuperarParametros() {
+      private void recuperarParametros() {
 
         Intent intentOrigem = getIntent();
         Bundle bundle = intentOrigem.getExtras();
@@ -69,7 +72,6 @@ public class InfoProdutoActivity extends AppCompatActivity {
             informacaoProduto = (InformacaoProduto) bundle.getSerializable(InformacaoProduto.class.getName());
         }
     }
-
 
     private void criarViews() {
         chart = (BarChart) findViewById(R.id.chartLine);
@@ -83,6 +85,10 @@ public class InfoProdutoActivity extends AppCompatActivity {
         textValor.setText(Double.toString(informacaoProduto.getValorVenda()));
 
         configurarGrafico();
+
+        if (informacaoProduto != null){
+            setTitle(informacaoProduto.getNome());
+        }
     }
 
     private void configurarGrafico() {
@@ -103,6 +109,8 @@ public class InfoProdutoActivity extends AppCompatActivity {
         chart.invalidate();
         chart.notifyDataSetChanged();
         chart.getData().notifyDataChanged();
+
+        chart.animateXY(4000, 3000);
     }
 
     private BarData criarBarData() {
@@ -138,8 +146,13 @@ public class InfoProdutoActivity extends AppCompatActivity {
 
     public void narrarValorProduto(View view) {
 
-        String texto = getString(R.string.texto_valor_produto, informacaoProduto.getNome(), informacaoProduto.getValorVenda());
+        narrarValorProduto();
+    }
 
-        tts.speak(texto, TextToSpeech.QUEUE_ADD, null);
+    private void narrarValorProduto() {
+        if (informacaoProduto != null && tts != null && ttsIniciado) {
+            String texto = getString(R.string.texto_valor_produto, informacaoProduto.getNome(), informacaoProduto.getValorVenda());
+            tts.speak(texto, TextToSpeech.QUEUE_ADD, null);
+        }
     }
 }

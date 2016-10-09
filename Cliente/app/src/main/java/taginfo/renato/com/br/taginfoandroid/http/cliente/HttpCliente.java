@@ -233,6 +233,6 @@ public class HttpCliente {
 	}
 
 	public static String getUrlInformacao(String tagId){
-		return "http://192.168.0.12:8080/info/"+tagId;
+		return "http://192.168.1.24:8080/info/"+tagId;
 	}
 }

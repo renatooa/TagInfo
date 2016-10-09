@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">TagInfoAndroid</string>
+    <string name="app_name">Tag Info</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -10,7 +10,7 @@
 
     <string name="nfc_disabilitado">NFC desabilitado. Clique em OK para habilitar</string>
     <string name="nfc_nao_suportado">Seu dispositivo não suporta a tecnologia NFC</string>
-    <string name="title_activity_info_produto">InfoProdutoActivity</string>
+    <string name="title_activity_info_produto">Informações</string>
 
     <string name="texto_aproxime.tag">Aproxime de uma Tag NFC</string>
     <string name="texto_produto">Produto</string>
@@ -24,5 +24,11 @@
 
     <string name="alerta_falha_obter_informacao">Houve uma falha na obtenção da Informação</string>
     <string name="mensagem_consultando_tag">Consultando Tag</string>
+
+    <string name="texto_info_dev_nome">Renato Alves</string>
+    <string name="texto_info_dev_email">renatoalves.infor@gmail.com</string>
+
+
+
 
 </resources>
